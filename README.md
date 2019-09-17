@@ -2,55 +2,42 @@
 
 ## Introduction
 
-This repository contains the 
+This repository contains the  implementation of the license plate algorithm. The OCR part of the algorithm used code from the ECCV 2018 paper "[License Plate Detection and Recognition in Unconstrained Scenarios](https://github.com/sergiomsilva/alpr-unconstrained)".The algorithms has improved the efficiency by more than 4 times.
 
 
 ## Requirements
 
-In order to easily run the code, ,you must be compiled darknet?RoIAlign(for pytorch 1.0) and corner_max_pool of the CornerNet, 
-To build Darknet just type "make" in "darknet" folder, other you need:~~~~
+In order to easily run the code, ,you must be compiled darknet、RoIAlign(for pytorch 1.0) and Corner_Pooling.
+To build Darknet just type "make" in "darknet" folder,  RoIAlign and Corner_Pooling need to be installed 
 
 ```shellscript
 $ cd darknet && make
 $ cd lib/RoIAlign && python setup.py install
-$ cd lib/py_utils/_cpools && python setup.py instal
+$ cd lib/py_utils/_cpools && python setup.py install
 ```
 
-**The current version was tested in an Ubuntu 16.04 machine, with Keras 2.2.4, TensorFlow 1.5.0, OpenCV 2.4.9, NumPy 1.14 and Python 2.7.**
+**The current version was tested in an Ubuntu 16.04 machine, with Pytorch 1.0,  and Python 3.6.**
 
-## Download Models
+## Use ALPR
 
-After building the Darknet framework, you must execute the "get-networks.sh" script. This will download all the trained models:
+We support demo for image/image folder.
+First, download the models from [Baidu Drive](https://pan.baidu.com/s/1oYj2Amz59YbEzC7FgdC1lQ) and put them in ROOT/models/
+
+For detection on images, run:
 
 ```shellscript
-$ bash get-networks.sh
+$ python demo.py --images /image_path/xxx.jpg   --model models/lpr_model.pth
 ```
 
-## Running a simple test
+We provide example images in ROOT/demo.if set up correctly , the output should look like
+![图1](demo/test/eu7.jpg) 
 
-Use the script "run.sh" to run our ALPR approach. It requires 3 arguments:
-* __Input directory (-i):__ should contain at least 1 image in JPG or PNG format;
-* __Output directory (-o):__ during the recognition process, many temporary files will be generated inside this directory and erased in the end. The remaining files will be related to the automatic annotated image;
-* __CSV file (-c):__ specify an output CSV file.
-
-```shellscript
-$ bash get-networks.sh && bash run.sh -i samples/test -o /tmp/output -c /tmp/output/results.csv
-```
 
 ## Training the LP detector
 
-To train the LP detector network from scratch, or fine-tuning it for new samples, you can use the train-detector.py script. In folder samples/train-detector there are 3 annotated samples which are used just for demonstration purposes. To correctly reproduce our experiments, this folder must be filled with all the annotations provided in the training set, and their respective images transferred from the original datasets.
-
-The following command can be used to train the network from scratch considering the data inside the train-detector folder:
+To train the LP detector network from scratch, or fine-tuning it for new samples, you can use the lpr_train.py script.. To correctly reproduce our experiments, this folder must be filled with all the annotations provided in the training List, and weights from yolov3(initialization training) or lpr_model.pth(finetune training)
 
 ```shellscript
-$ mkdir models
-$ python create-model.py eccv models/eccv-model-scracth
-$ python train-detector.py --model models/eccv-model-scracth --name my-trained-model --train-dir samples/train-detector --output-dir models/my-trained-model/ -op Adam -lr .001 -its 300000 -bs 64
+$ python lpr_train.py --data train.txt --weights yolov3.weights 
 ```
 
-For fine-tunning, use your model with --model option.
-
-## A word on GPU and CPU
-
-We know that not everyone has an NVIDIA card available, and sometimes it is cumbersome to properly configure CUDA. Thus, we opted to set the Darknet makefile to use CPU as default instead of GPU to favor an easy execution for most people instead of a fast performance. Therefore, the vehicle detection and OCR will be pretty slow. If you want to accelerate them, please edit the Darknet makefile variables to use GPU.

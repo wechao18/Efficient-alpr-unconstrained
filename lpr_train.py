@@ -13,23 +13,15 @@ def arg_parse():
 
     """
 
-    parser = argparse.ArgumentParser(description='YOLO v3 Detection Module')
+    parser = argparse.ArgumentParser(description='LPR Detection Module')
 
-    parser.add_argument("--images", dest='images', help=
-    "Image / Directory containing images to perform detection upon",
-                        default="test.jpg", type=str)
-    parser.add_argument("--det", dest='det', help=
-    "Image / Directory to store detections to",
-                        default="det", type=str)
-    parser.add_argument("--bs", dest="bs", help="Batch size", default=1)
+    parser.add_argument("--data", dest='train_list', help=
+    "train_list.txt", default="train.txt", type=str)
+    parser.add_argument("--bs", dest="bs", help="Batch size", default=8)
     parser.add_argument("--confidence", dest="confidence", help="Object Confidence to filter predictions", default=0.5)
     parser.add_argument("--nms_thresh", dest="nms_thresh", help="NMS Threshhold", default=0.4)
-    parser.add_argument("--cfg", dest='cfgfile', help=
-    "Config file",
-                        default="cfg/yolov3-tiny.cfg", type=str)
-    parser.add_argument("--weights", dest='weightsfile', help=
-    "weightsfile",
-                        default="model/yolov3.weights", type=str)
+    parser.add_argument("--weights", dest='weights_file', help=
+    "weightsfile", default="models/yolov3.weights", type=str)
     parser.add_argument("--reso", dest='reso', help=
     "Input resolution of the network. Increase to increase accuracy. Decrease to increase speed",
                         default="416", type=str)
@@ -45,7 +37,6 @@ def collate_function(data):
 	"""
     transposed_data = list(zip(*data))
     imgs, labels, lp_labels = transposed_data[0], transposed_data[1], transposed_data[2]
-    #imgs = torch.stack(imgs, 0)
     imgs = torch.stack([torch.from_numpy(img) for img in imgs], 0)
     return [imgs, labels, lp_labels]
 
@@ -82,7 +73,7 @@ if __name__ == '__main__':
     # Set up the neural network
     print("Loading network.....")
     model = LPR()
-    model.load_weights(args.weightsfile)
+    model.load_weights(args.weights_file)
     print("Network successfully loaded")
     model_info(model)
 
@@ -109,12 +100,9 @@ if __name__ == '__main__':
     
     optimizer = torch.optim.Adam(filter(lambda x: x.requires_grad, model.parameters()), lr=init_lr)
     # Get dataloader
-    #train_path = 'lpr_train.txt'
-    train_path = 'car_train_alpr_aolp_ssig.txt'
-    #train_path = 'car_train_alpr_aolp.txt'
+    train_path = args.train_list
     datasets = TrainDataLoader3(train_path)
-    #trainloader = DataLoader(datasets, batch_size=1, shuffle=True, num_workers=1, collate_fn=collate_function)
-    trainloader = DataLoader(datasets, batch_size=8, shuffle=True, num_workers=1, drop_last=True)
+    trainloader = DataLoader(datasets, batch_size=8, shuffle=True, num_workers=2, drop_last=True)
     lrScheduler = lr_scheduler.StepLR(optimizer, step_size=300, gamma=0.9)
 
     for epoch in range(0, 6000):
@@ -145,7 +133,7 @@ if __name__ == '__main__':
                     if k == 'lr':
                         print(k, v)
 
-            path = 'output/model_%d.pt' % (epoch+1)
+            path = 'models/model_%d.pth' % (epoch+1)
             torch.save(model.state_dict(), path)
 
 
