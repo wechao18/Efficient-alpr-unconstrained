@@ -7,7 +7,7 @@ This repository contains the  implementation of the license plate algorithm. The
 
 ## Requirements
 
-In order to easily run the code, ,you must be compiled darknet、RoIAlign(for pytorch 1.0) and Corner_Pooling.
+In order to easily run the code, you must be compiled darknet、RoIAlign(for pytorch 1.0) and Corner_Pooling.
 To build Darknet just type "make" in "darknet" folder,  RoIAlign and Corner_Pooling need to be installed 
 
 ```shellscript
