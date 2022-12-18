@@ -397,7 +397,7 @@ class LPR(nn.Module):
         super(LPR, self).__init__()
         #self.device = select_device(device)
         self.device = torch.device(device)
-        self.detector = DetectMultiBackend(weights, device=self.device, dnn=False, data='./data/coco128.yaml', fp16=False)
+        self.detector = DetectMultiBackend(weights, device=self.device, dnn=False, data=None, fp16=False)
         #stride, names, pt = self.detector.stride, self.detector.names, self.detector.pt
         #Fixparameters
         #self.detector.Fixparameters()
