@@ -407,7 +407,9 @@ class DetectMultiBackend(nn.Module):
         # YOLOv5 MultiBackend inference
         b, ch, h, w = im.shape  # batch, channel, height, width
         if self.pt:  # PyTorch
-            y = self.model(im, augment=augment, visualize=visualize)[0]
+            #get save
+            y = self.model(im, augment=augment, visualize=visualize)
+            #y = self.model(im, augment=augment, visualize=visualize)[0]
         elif self.jit:  # TorchScript
             y = self.model(im)[0]
         elif self.dnn:  # ONNX OpenCV DNN

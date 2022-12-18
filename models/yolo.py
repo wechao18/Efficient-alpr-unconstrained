@@ -156,7 +156,8 @@ class Model(nn.Module):
             y.append(x if m.i in self.save else None)  # save output
             if visualize:
                 feature_visualization(x, m.type, m.i, save_dir=visualize)
-        return x
+        #return x
+        return x, y
 
     def _descale_pred(self, p, flips, scale, img_size):
         # de-scale predictions following augmented inference (inverse operation)
@@ -316,7 +317,6 @@ if __name__ == '__main__':
     # Create model
     im = torch.rand(opt.batch_size, 3, 640, 640).to(device)
     model = Model(opt.cfg).to(device)
-
     # Options
     if opt.line_profile:  # profile layer by layer
         _ = model(im, profile=True)
